@@ -5,14 +5,19 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 import ch.qos.logback.core.encoder.ByteArrayUtil;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Entity
 public class Block {
 	
+	@Id
 	private byte[] hash;
 	private byte[] data;
 	private byte[] prevHash;

@@ -8,8 +8,11 @@ import java.nio.ByteOrder;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 
+import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import com.tazz0009.blockbasic.utils.Util;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,7 +40,7 @@ class BlockbasicApplicationTests {
 //		
 //	}
 	
-	@Test
+//	@Test
 	void blockTest() throws IOException {
 		try {
 			BlockChain blockChain = new BlockChain();
@@ -47,9 +50,9 @@ class BlockbasicApplicationTests {
 			blockChain.addBlock("Third Block after Genesis");
 			
 			for (Block block : blockChain.getBlocks()) {
-				System.out.printf("Previous Hash: %s\n", byteToHex(block.getPrevHash()));
+				System.out.printf("Previous Hash: %s\n", Util.byteToHex(block.getPrevHash()));
 				System.out.printf("Data in Block: %s\n", new String(block.getData()));
-				System.out.printf("Hash: %s\n", byteToHex(block.getHash()));
+				System.out.printf("Hash: %s\n", Util.byteToHex(block.getHash()));
 				System.out.printf("Nonce: %d\n", block.getNonce());
 			}
 			
@@ -58,25 +61,19 @@ class BlockbasicApplicationTests {
 		}
 	}
 	
-	public String byteToHex(byte[] bArr) {
-		StringBuilder sb = new StringBuilder();
-		for (byte b : bArr) {
-			sb.append(String.format("%02x", b));
+	@Test
+	void test() throws NoSuchAlgorithmException, IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		baos.write(new byte[] {});
+		baos.write("Genesis".getBytes());
+		baos.write(BigInteger.valueOf(19304).toByteArray());
+		baos.write(new BigInteger("2").pow(256-12).toByteArray());
+		baos.close();
+		String hashStr1 = Util.convByteArrToString(Util.getHash(baos.toByteArray()));
+		String hashStr2 = Util.byteToHex(Util.getHash(baos.toByteArray()));
+		if (hashStr1.equals(hashStr2)) {
+			System.out.println("same!!");
 		}
-		return sb.toString();
-	}
-	
-//	@Test
-	void test() {
-		BigInteger nonce = BigInteger.valueOf(10);
-		BigInteger target = new BigInteger("2").pow(256-18);
-		System.out.printf("nonce : %d\n", nonce);
-		System.out.printf("nonce : %s\n", byteToHex(nonce.toByteArray()));
-		System.out.printf("ccc : %d\n", target);
-		System.out.println(byteToHex(target.toByteArray()));
-		System.out.printf("bbbb : %s\n", byteToHex(target.toByteArray()));
-		byte[] array = ByteBuffer.allocate(Long.BYTES).putLong(100).array();
-		System.out.printf("aaaa : %s\n", byteToHex(array));
 	}
 
 }

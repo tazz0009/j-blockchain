@@ -2,12 +2,13 @@ package com.tazz0009.blockbasic;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
+
+import com.tazz0009.blockbasic.utils.Util;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,11 +32,7 @@ public class Proof {
 		BigInteger max = BigInteger.valueOf(Long.MAX_VALUE);
 		while (nonce.compareTo(max) == -1) {
 			byte[] data = this.initData(nonce);
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
-			md.update(data);
-			hash = md.digest();
-			
-//			System.out.printf("\r%s", byteToHex(hash));
+			hash = Util.getHash(data);
 			BigInteger intHash = new BigInteger(hash);
 			if (intHash.compareTo(target) == -1 && intHash.compareTo(BigInteger.valueOf(0)) == 1) {
 				break;
@@ -54,7 +51,6 @@ public class Proof {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		baos.write(block.getPrevHash());
 		baos.write(block.getData());
-		baos.write(block.getHash());
 		baos.write(nonce.toByteArray());
 		baos.write(this.target.toByteArray());
 		baos.close();
