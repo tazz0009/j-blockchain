@@ -1,9 +1,9 @@
 package com.tazz0009.blockbasic;
 
-import java.security.MessageDigest;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-
-import org.apache.commons.lang3.ArrayUtils;
+import java.util.Map;
 
 import ch.qos.logback.core.encoder.ByteArrayUtil;
 import lombok.Getter;
@@ -16,6 +16,7 @@ public class Block {
 	private byte[] hash;
 	private byte[] data;
 	private byte[] prevHash;
+	private BigInteger nonce;
 	
 	public Block(byte[] hash, byte[] data, byte[] prevHash) {
 		super();
@@ -24,15 +25,18 @@ public class Block {
 		this.prevHash = prevHash;
 	}
 	
-	public Block(byte[] data, byte[] prevHash) throws NoSuchAlgorithmException {
+	public Block(byte[] data, byte[] prevHash) throws NoSuchAlgorithmException, IOException {
 		super();
+		this.hash = new byte[] {};
 		this.data = data;
 		this.prevHash = prevHash;
+		this.nonce = BigInteger.valueOf(0);
 		
-		byte[] addAll = ArrayUtils.addAll(data, prevHash);
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-		md.update(addAll);
-		this.hash = md.digest();
+		Proof proof = new Proof(this);
+		Map<String, Object> value = proof.run(this.nonce);
+		
+		this.nonce = (BigInteger) value.get("nonce");
+		this.hash = (byte[]) value.get("hash");;
 	}
 	
 	@Override
