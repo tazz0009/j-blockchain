@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ch.qos.logback.core.encoder.ByteArrayUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,19 +20,34 @@ import lombok.Setter;
 public class Block {
 	
 	@Id
+	@JsonIgnore
+	private byte[] id;
 	private byte[] hash;
-	private byte[] data;
+	private String data;
 	private byte[] prevHash;
 	private BigInteger nonce;
 	
-	public Block(byte[] hash, byte[] data, byte[] prevHash) {
+	public Block() {
+	}
+	
+	public Block(byte[] id, byte[] hash, String data, byte[] prevHash, BigInteger nonce) {
 		super();
+		this.id = id;
+		this.hash = hash;
+		this.data = data;
+		this.prevHash = prevHash;
+		this.nonce = nonce;
+	}
+
+	public Block(byte[] hash, String data, byte[] prevHash) {
+		super();
+		this.id = hash;
 		this.hash = hash;
 		this.data = data;
 		this.prevHash = prevHash;
 	}
 	
-	public Block(byte[] data, byte[] prevHash) throws NoSuchAlgorithmException, IOException {
+	public Block(String data, byte[] prevHash) throws NoSuchAlgorithmException, IOException {
 		super();
 		this.hash = new byte[] {};
 		this.data = data;
@@ -41,7 +58,8 @@ public class Block {
 		Map<String, Object> value = proof.run(this.nonce);
 		
 		this.nonce = (BigInteger) value.get("nonce");
-		this.hash = (byte[]) value.get("hash");;
+		this.hash = (byte[]) value.get("hash");
+		this.id = (byte[]) value.get("hash");
 	}
 	
 	@Override
@@ -55,7 +73,7 @@ public class Block {
 		sb.append(hexStringPrevHash);
 		sb.append("\n");
 		sb.append("data: ");
-		sb.append(new String(data));
+		sb.append(this.data);
 		sb.append("\n");
 		sb.append("hash: ");
 		sb.append(hexStringHash);

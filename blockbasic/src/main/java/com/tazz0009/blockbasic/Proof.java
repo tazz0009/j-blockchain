@@ -50,19 +50,24 @@ public class Proof {
 	private byte[] initData(BigInteger nonce) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		baos.write(block.getPrevHash());
-		baos.write(block.getData());
+		baos.write(block.getData().getBytes());
 		baos.write(nonce.toByteArray());
-		baos.write(this.target.toByteArray());
+		baos.write(this.difficulty);
 		baos.close();
 		return  baos.toByteArray();
 	}
 	
-	private String byteToHex(byte[] bArr) {
-		StringBuilder sb = new StringBuilder();
-		for (byte b : bArr) {
-			sb.append(String.format("%02x", b));
+	public boolean validate(Block block) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		baos.write(block.getPrevHash());
+		baos.write(block.getData().getBytes());
+		baos.write(block.getNonce().toByteArray());
+		baos.write(getDifficulty());
+		baos.close();
+		String hashStr = Util.convByteArrToString(Util.getHash(baos.toByteArray()));
+		if (hashStr.equals(Util.convByteArrToString(block.getHash()))) {
+			return true;
 		}
-		return sb.toString();
+		return false;
 	}
-	
 }
